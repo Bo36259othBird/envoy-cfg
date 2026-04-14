@@ -55,6 +55,7 @@ def export_env(
 
     Raises:
         ValueError: If an unsupported format is specified.
+        OSError: If writing to ``output_path`` fails.
     """
     if fmt not in SUPPORTED_FORMATS:
         raise ValueError(
@@ -69,7 +70,12 @@ def export_env(
     output = exporters[fmt](env, mask_secrets=mask_secrets)
 
     if output_path:
-        with open(output_path, "w", encoding="utf-8") as fh:
-            fh.write(output)
+        try:
+            with open(output_path, "w", encoding="utf-8") as fh:
+                fh.write(output)
+        except OSError as exc:
+            raise OSError(
+                f"Failed to write export output to '{output_path}': {exc}"
+            ) from exc
 
     return output
