@@ -59,6 +59,14 @@ def apply_transforms(
       - ``"values_upper"`` – uppercase all values
       - ``"values_strip"`` – strip whitespace from all values
       - ``"values_lower"`` – lowercase all values
+
+    An optional ``"keys"`` list may be supplied for value transforms to
+    restrict which keys are affected.
+
+    Raises
+    ------
+    ValueError
+        If a step is missing the ``"type"`` key or the type is not recognised.
     """
     current = dict(env)
     applied: List[str] = []
@@ -73,8 +81,12 @@ def apply_transforms(
         "values_strip": lambda k, v: v.strip(),
     }
 
-    for step in steps:
-        step_type = step.get("type", "")
+    for i, step in enumerate(steps):
+        if "type" not in step:
+            raise ValueError(
+                f"Transform step at index {i} is missing required key 'type'."
+            )
+        step_type = step["type"]
         if step_type in _key_fns:
             result = transform_keys(current, _key_fns[step_type], label=step_type)
             current = result.transformed
