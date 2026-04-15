@@ -84,3 +84,19 @@ def test_filter_target_with_no_tags_excluded_by_required(targets):
     result = filter_by_tags(targets, required_tags=["web"])
     names = [t.name for t in result]
     assert "worker" not in names
+
+
+def test_group_by_tag_critical_members(targets):
+    """Targets tagged 'critical' should include both web-prod and api-prod."""
+    groups = group_by_tag(targets)
+    critical_names = [t.name for t in groups["critical"]]
+    assert "web-prod" in critical_names
+    assert "api-prod" in critical_names
+    assert "web-staging" not in critical_names
+    assert "worker" not in critical_names
+
+
+def test_filter_excluded_tag_not_present_returns_all(targets):
+    """Excluding a tag that no target has should return all targets."""
+    result = filter_by_tags(targets, excluded_tags=["nonexistent"])
+    assert len(result) == len(targets)
