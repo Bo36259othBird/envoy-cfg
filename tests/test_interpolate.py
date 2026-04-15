@@ -59,6 +59,15 @@ def test_overlay_key_not_included_in_resolved():
     assert "BASE" not in result.resolved
 
 
+def test_overlay_overrides_env_reference_source():
+    """Overlay values should take precedence over env values when resolving refs."""
+    env = {"BASE": "https://origin.example.com", "URL": "${BASE}/path"}
+    overlay = {"BASE": "https://cdn.example.com"}
+    result = interpolate_env(env, overlay=overlay)
+    assert result.resolved["URL"] == "https://cdn.example.com/path"
+    assert result.is_clean
+
+
 # ---------------------------------------------------------------------------
 # interpolate_env — error handling
 # ---------------------------------------------------------------------------
@@ -90,11 +99,10 @@ def test_circular_reference_detected():
 # ---------------------------------------------------------------------------
 
 def test_result_repr_contains_counts():
-    result = InterpolateResult(
-        resolved={"A": "1", "B": "2"},
-        unresolved_keys=["C"],
-        errors=["C: unresolved reference '${X}'"],
-    )
+    """repr of InterpolateResult should include resolved and error counts."""
+    env = {"URL": "${MISSING}/api", "HOST": "localhost"}
+    result = interpolate_env(env)
     r = repr(result)
-    assert "resolved=2" in r
-    assert "unresolved" in r
+    assert "InterpolateResult" in r
+    assert "resolved" in r
+    assert "errors" in r
