@@ -56,6 +56,14 @@ def test_sync_to_all_filtered_by_environment(registry_with_targets):
     assert results[0].target_name == "prod-web"
 
 
+def test_sync_to_all_filtered_by_unknown_environment(registry_with_targets):
+    """Filtering by an environment with no registered targets should return an empty list."""
+    syncer = EnvSyncer(registry_with_targets)
+    syncer.set_dry_run(True)
+    results = syncer.sync_to_all(ENV_VARS, environment="canary")
+    assert results == []
+
+
 def test_sync_result_repr_success():
     result = SyncResult(target_name="web", success=True, keys_synced=["A", "B"])
     assert "OK" in repr(result)
