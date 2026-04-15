@@ -31,6 +31,17 @@ def flatten_env(
 
     Keys that do not contain the delimiter are passed through unchanged.
     Optionally filter to only keys beginning with `prefix`.
+
+    Args:
+        env: The environment variable dictionary to flatten.
+        delimiter: The string used to split keys into path segments. Defaults to "__".
+        prefix: If provided, only keys starting with this prefix are included.
+
+    Returns:
+        A FlattenResult containing the flattened dict and metadata.
+
+    Raises:
+        ValueError: If delimiter is an empty string.
     """
     if not delimiter:
         raise ValueError("delimiter must be a non-empty string")
@@ -57,7 +68,18 @@ def unflatten_env(
     env: Dict[str, str],
     delimiter: str = "__",
 ) -> Dict[str, str]:
-    """Reverse flatten_env: convert dotted flat keys back to delimiter-separated uppercase keys."""
+    """Reverse flatten_env: convert dotted flat keys back to delimiter-separated uppercase keys.
+
+    Args:
+        env: A dictionary with dotted flat keys (as produced by flatten_env).
+        delimiter: The delimiter to use when joining key segments. Defaults to "__".
+
+    Returns:
+        A dictionary with restored delimiter-separated uppercase keys.
+
+    Raises:
+        ValueError: If delimiter is an empty string.
+    """
     if not delimiter:
         raise ValueError("delimiter must be a non-empty string")
 
