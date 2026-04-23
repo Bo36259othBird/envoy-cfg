@@ -11,8 +11,14 @@ from envoy_cfg.split import split_env
 
 
 def _load_dotenv(path: str) -> Dict[str, str]:
+    """Load key-value pairs from a .env file, skipping comments and blank lines."""
     env: Dict[str, str] = {}
-    for line in Path(path).read_text().splitlines():
+    dotenv_path = Path(path)
+    if not dotenv_path.exists():
+        raise FileNotFoundError(f"Env file not found: {path}")
+    if not dotenv_path.is_file():
+        raise ValueError(f"Path is not a file: {path}")
+    for line in dotenv_path.read_text().splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
             continue
@@ -23,7 +29,11 @@ def _load_dotenv(path: str) -> Dict[str, str]:
 
 
 def cmd_split(args: Namespace) -> None:
-    env = _load_dotenv(args.file)
+    try:
+        env = _load_dotenv(args.file)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"[error] {exc}")
+        return
 
     rules: Dict[str, str] = {}
     for rule_str in args.rule:
