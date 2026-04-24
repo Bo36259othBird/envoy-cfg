@@ -89,3 +89,12 @@ def test_sync_empty_env_vars(registry_with_targets):
     result = syncer.sync_to_target("dev-web", {})
     assert result.success is True
     assert result.keys_synced == []
+
+
+def test_sync_to_all_returns_result_per_target(registry_with_targets):
+    """Each target in the registry should produce exactly one SyncResult."""
+    syncer = EnvSyncer(registry_with_targets)
+    syncer.set_dry_run(True)
+    results = syncer.sync_to_all(ENV_VARS)
+    target_names = {r.target_name for r in results}
+    assert target_names == {"prod-web", "staging-web", "dev-web"}
