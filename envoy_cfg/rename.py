@@ -37,7 +37,23 @@ def rename_keys(
     overwrite:
         When *True* (default) the new key overwrites any existing value.
         When *False* the rename is skipped if the new key already exists.
+
+    Raises
+    ------
+    ValueError:
+        If *mapping* contains duplicate destination keys, which would cause
+        one rename to silently clobber another.
     """
+    destination_keys = list(mapping.values())
+    if len(destination_keys) != len(set(destination_keys)):
+        seen = set()
+        duplicates = {
+            key for key in destination_keys if key in seen or seen.add(key)  # type: ignore[func-returns-value]
+        }
+        raise ValueError(
+            f"Duplicate destination keys in mapping: {sorted(duplicates)}"
+        )
+
     result: Dict[str, str] = dict(env)
     renamed: List[Tuple[str, str]] = []
     skipped: List[str] = []
