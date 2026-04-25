@@ -12,8 +12,17 @@ from envoy_cfg.scope import scope_by_keys, scope_by_prefix
 
 
 def _load_dotenv(path: str) -> Dict[str, str]:
+    """Parse a .env file into a dict, skipping comments and blank lines.
+
+    Raises:
+        FileNotFoundError: If the given path does not exist.
+        ValueError: If the file cannot be decoded as text.
+    """
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"env file not found: {path}")
     env: Dict[str, str] = {}
-    for line in Path(path).read_text().splitlines():
+    for line in p.read_text().splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
