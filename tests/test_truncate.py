@@ -96,5 +96,5 @@ def test_truncate_repr_includes_counts(base_env):
 def test_truncate_empty_env():
     result = truncate_env({}, max_length=10)
     assert result.env == {}
-    assert result.is_clean is True
     assert result.truncated_keys == []
+    assert result.is_clean is True
