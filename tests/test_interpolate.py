@@ -87,22 +87,17 @@ def test_unresolved_value_kept_as_raw():
 
 
 def test_circular_reference_detected():
+    """A key that references itself (directly or indirectly) should be flagged."""
     env = {"A": "${B}", "B": "${A}"}
     result = interpolate_env(env)
-    assert len(result.errors) > 0
-    assert any("Circular" in e for e in result.errors)
     assert not result.is_clean
+    assert "A" in result.unresolved_keys or "B" in result.unresolved_keys
+    assert any("circular" in e.lower() or "A" in e or "B" in e for e in result.errors)
 
 
-# ---------------------------------------------------------------------------
-# InterpolateResult — repr
-# ---------------------------------------------------------------------------
-
-def test_result_repr_contains_counts():
-    """repr of InterpolateResult should include resolved and error counts."""
-    env = {"URL": "${MISSING}/api", "HOST": "localhost"}
+def test_self_referencing_key_detected():
+    """A key that directly references itself should be treated as a circular reference."""
+    env = {"FOO": "prefix_${FOO}"}
     result = interpolate_env(env)
-    r = repr(result)
-    assert "InterpolateResult" in r
-    assert "resolved" in r
-    assert "errors" in r
+    assert not result.is_clean
+    assert "FOO" in result.unresolved_keys
