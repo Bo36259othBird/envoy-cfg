@@ -30,6 +30,10 @@ def mask_value(value: Any) -> str:
     """Return a masked representation of a secret value."""
     if not isinstance(value, str) or len(value) == 0:
         return MASK_PLACEHOLDER
+    # Numeric-only secrets do not have a safe prefix to reveal: even the first
+    # digits can expose ports, account IDs, PINs, or generated numeric tokens.
+    if value.isdigit():
+        return MASK_PLACEHOLDER
     # Reveal only the first 2 characters for non-trivial values
     if len(value) <= 4:
         return MASK_PLACEHOLDER

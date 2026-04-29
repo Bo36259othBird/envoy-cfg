@@ -50,6 +50,10 @@ def test_mask_value_long_string():
     assert "supersecret" not in result
 
 
+def test_mask_value_numeric_string():
+    assert mask_value("1234567890") == MASK_PLACEHOLDER
+
+
 def test_mask_value_non_string():
     assert mask_value(None) == MASK_PLACEHOLDER  # type: ignore[arg-type]
 
@@ -62,7 +66,8 @@ SAMPLE_ENV = {
     "HOST": "localhost",
     "PORT": "5432",
     "DB_PASSWORD": "hunter2",
-    "API_KEY": "sk-abcdef123456",
+    "API_KEY": "***",
+    "STRIPE_SECRET": "1234567890",
     "APP_NAME": "myapp",
 }
 
@@ -73,7 +78,8 @@ def test_mask_env_masks_secrets():
     assert result["PORT"] == "5432"
     assert result["APP_NAME"] == "myapp"
     assert result["DB_PASSWORD"] != "hunter2"
-    assert result["API_KEY"] != "sk-abcdef123456"
+    assert result["API_KEY"] != "***"
+    assert result["STRIPE_SECRET"] == MASK_PLACEHOLDER
 
 
 def test_mask_env_reveal_returns_original():
